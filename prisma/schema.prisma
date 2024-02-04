@@ -1,0 +1,148 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model AccessLevels {
+  idAccessLevel Int     @id @default(autoincrement())
+  name          String? @db.VarChar(50)
+  type          Int?
+  status        Int?
+}
+
+model Addresses {
+  idAddress    Int     @id @default(autoincrement())
+  idUser       Int
+  postalCode   String? @db.VarChar(10)
+  street       String? @db.VarChar(255)
+  neighborhood String? @db.VarChar(255)
+  city         String? @db.VarChar(255)
+  state        String? @db.VarChar(255)
+  number       Int?
+}
+
+model Announcements {
+  idAnnouncements Int       @id @default(autoincrement())
+  name            String?   @db.VarChar(100)
+  URL             String?   @db.VarChar(255)
+  video           Bytes?
+  date            DateTime? @db.DateTime(0)
+  inLive          Boolean?
+}
+
+model Contacts {
+  idContact Int     @id @default(autoincrement())
+  idUser    Int
+  contact   String? @db.VarChar(255)
+  type      Int?
+}
+
+model Events {
+  idEvent                  Int       @id @default(autoincrement())
+  idAddress                Int?
+  name                     String?   @db.VarChar(100)
+  description              String?   @db.VarChar(255)
+  profileImage             Bytes?
+  date                     DateTime? @db.DateTime(0)
+  week                     Int?
+  isFree                   Boolean?
+  pixKey                   String?   @db.VarChar(255)
+  featuredGuest            String?   @db.VarChar(255)
+  featuredGuestDescription String?   @db.LongText
+  featuredGuestImage       Bytes?
+  type                     Int?
+  status                   Boolean?
+}
+
+model EventsImage {
+  idImageEvent Int    @id @default(autoincrement())
+  idEvent      Int
+  image        Bytes?
+}
+
+model EventsUsers {
+  idEventUser    Int      @id @default(autoincrement())
+  idEvent        Int?
+  idUser         Int?
+  typeMember     Int?
+  value          Decimal? @db.Decimal(10, 1)
+  payment        Boolean?
+  paymentVoucher Bytes?
+  pixKey         String?  @db.VarChar(255)
+  status         Int?
+}
+
+model Ministries {
+  idMinistry  Int     @id @default(autoincrement())
+  name        String? @db.VarChar(100)
+  description String? @db.LongText
+  icon        Bytes?
+}
+
+model MinistryUser {
+  idMinistryUser Int  @id @default(autoincrement())
+  idMinistry     Int
+  idUser         Int
+  typeMember     Int?
+  status         Int?
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Situation {
+  table String? @db.VarChar(255)
+  field String? @db.VarChar(255)
+  name  String? @db.VarChar(255)
+  value Int?
+
+  @@ignore
+}
+
+model Transmissions {
+  idTransmission Int       @id @default(autoincrement())
+  idEvent        Int?
+  name           Bytes?    @db.VarBinary(100)
+  description    String?   @db.VarChar(255)
+  date           DateTime? @db.DateTime(0)
+  url            String?   @db.VarChar(255)
+}
+
+model Users {
+  idUser        Int       @id @default(autoincrement())
+  idAccessLevel Int?
+  completeName  String?   @db.VarChar(150)
+  username      String?   @db.VarChar(100)
+  email         String?   @db.VarChar(255)
+  password      String?   @db.VarChar(255)
+  profileImage  Bytes?
+  genre         Int?
+  birthDate     DateTime? @db.Date
+  baptismDate   DateTime? @db.Date
+  isMember      Boolean?
+  isBaptized    Boolean?
+  status        Int?
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model reference {
+  table           String?  @db.VarChar(50)
+  field           String?  @db.VarChar(50)
+  type            Int?
+  description     String?  @db.VarChar(50)
+  idStatus        Int?
+  idStatusBoolean Boolean?
+
+  @@ignore
+}
+
+model sundayCoffee {
+  idSundayCoffee Int       @id @default(autoincrement())
+  idUser         Int?
+  date           DateTime? @db.DateTime(0)
+  week           Int?
+  status         Boolean?
+}

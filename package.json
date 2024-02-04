@@ -5,7 +5,7 @@
   "author": "Kaio Iwakiri <kaio_ti@hotmail.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "ts-node-dev --respawn --rs --transpile-only --exit-child server.ts",
+    "dev": "ts-node-dev --respawn --rs --transpile-only --exit-child src/server.ts",
     "lint": "eslint . --ext .ts",
     "build": "tsc",
     "start": "node dist/https-server.js",
@@ -21,6 +21,9 @@
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "@typescript-eslint/parser": "^6.19.0",
     "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "prettier": "^3.2.4",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.3.3"

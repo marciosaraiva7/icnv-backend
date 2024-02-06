@@ -66,14 +66,14 @@ export class User {
     )
   }
 
-  static async updateUser(user: {
-    completeName: string
-    genre: string
-    baptismDate: Date
-    birthDate: Date
-    isMember: boolean
-    isBaptized: boolean
-  }): Promise<void> {
-    await UserService.updateUser(user)
-  }
+  // static async updateUser(user: {
+  //   completeName: string
+  //   genre: string
+  //   baptismDate: Date
+  //   birthDate: Date
+  //   isMember: boolean
+  //   isBaptized: boolean
+  // }): Promise<void> {
+  //   await UserService.updateUser(user)
+  // }
 }

@@ -8,7 +8,7 @@
     "dev": "ts-node-dev --respawn --rs --transpile-only --exit-child src/server.ts",
     "lint": "eslint . --ext .ts",
     "build": "tsc",
-    "start": "node dist/https-server.js",
+    "start": "node dist/server.js",
     "prisma generate": "prisma generate",
     "prisma migrate": "prisma migrate deploy"
   },

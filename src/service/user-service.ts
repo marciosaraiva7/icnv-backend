@@ -17,18 +17,18 @@ export class UserService {
     })
   }
 
-  static async updateUser(data: {
-    id: number
-    completeName: string
-    genre: string
-    baptismDate: Date
-    birthDate: Date
-    isMember: boolean
-    isBaptized: boolean
-  }): Promise<Users> {
-    return await prisma.users.update({
-      where: { idUser: data.id },
-      data,
-    })
-  }
+  // static async updateUser(data: {
+  //   id: number
+  //   completeName: string
+  //   genre: string
+  //   baptismDate: Date
+  //   birthDate: Date
+  //   isMember: boolean
+  //   isBaptized: boolean
+  // }): Promise<Users> {
+  //   return await prisma.users.update({
+  //     where: { idUser: data.id },
+  //     data,
+  //   })
+  // }
 }

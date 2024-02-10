@@ -1,6 +1,7 @@
 import { UserService } from '../service/user-service'
 import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
+import { AddressService } from '../service/address-service'
 
 export class User {
   static async login(email: string, password: string): Promise<string> {
@@ -66,14 +67,72 @@ export class User {
     )
   }
 
-  // static async updateUser(user: {
-  //   completeName: string
-  //   genre: string
-  //   baptismDate: Date
-  //   birthDate: Date
-  //   isMember: boolean
-  //   isBaptized: boolean
-  // }): Promise<void> {
-  //   await UserService.updateUser(user)
-  // }
+  static async updateUser(
+    id: number,
+    completeName: string,
+    genre: string,
+    baptismDate: Date,
+    birthDate: Date,
+    isMember: boolean,
+    isBaptized: boolean,
+    postalCode: string,
+    profileImage: Buffer | null,
+  ): Promise<string> {
+    const userExists = await UserService.getUserById(id)
+    if (!userExists) {
+      throw new Error('Usuário não encontrado')
+    }
+
+    const address = await AddressService.consultaCep(postalCode)
+    if (!address) {
+      throw new Error('Endereço não encontrado ou CEP inválido')
+    }
+
+    await AddressService.createAddress({
+      idUser: id,
+      postalCode: postalCode,
+      street: address.logradouro,
+      neighborhood: address.bairro,
+      city: address.localidade,
+      state: address.uf,
+    })
+
+    const userName = (completeName: string): string => {
+      const name = completeName.split(' ')
+      const userName = name[0] + ' ' + name[-1]
+      return userName
+    }
+
+    let genreInt: number
+
+    if (genre === 'Homem') {
+      genreInt = 0
+    } else {
+      genreInt = 1
+    }
+
+    const user = {
+      idUser: id,
+      email: userExists.email,
+      password: userExists.password,
+      completeName,
+      username: userName(completeName),
+      idAccessLevel: 2,
+      genre: genreInt,
+      baptismDate,
+      birthDate,
+      isMember,
+      isBaptized,
+      profileImage,
+      status: userExists.status,
+    }
+
+    if (isMember === false) {
+      user.idAccessLevel = 1
+    }
+
+    await UserService.updateUser(id, user)
+
+    return 'Usuário atualizado com sucesso'
+  }
 }

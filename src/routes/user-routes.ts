@@ -18,9 +18,10 @@ export default (router: Router) => {
     validateResource(signInUserSchema),
     UserController.signIn,
   )
-  // router.post(
-  //   '/updateUser',
-  //   validateResource(updateUserSchema),
-  //   UserController.updateUser,
-  // )
+  router.post(
+    '/updateUser',
+    validateResource(updateUserSchema),
+    UserController.updateUser,
+  )
+  router.get('/healthcheck', (req, res) => res.send('OK'))
 }

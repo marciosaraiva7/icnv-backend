@@ -26,29 +26,40 @@ export class UserController {
     }
   }
 
-  // static async updateUser(req: Request, res: Response) {
-  //   try {
-  //     const {
-  //       completeName,
-  //       genre,
-  //       baptismDate,
-  //       birthDate,
-  //       isMember,
-  //       isBaptized,
-  //     } = req.body
+  static async updateUser(req: Request, res: Response) {
+    try {
+      const {
+        id,
+        completeName,
+        genre,
+        baptismDate,
+        birthDate,
+        isMember,
+        isBaptized,
+        postalCode,
+      } = req.body
 
-  //     const response = await User.updateUser({
-  //       completeName,
-  //       genre,
-  //       baptismDate,
-  //       birthDate,
-  //       isMember,
-  //       isBaptized,
-  //     })
+      const profileImage = req.files
+        ? Array.isArray(req.files)
+          ? req.files[0].buffer
+          : req.files.buffer
+        : null
 
-  //     return res.status(200).json(response)
-  //   } catch (error: any) {
-  //     return res.status(400).json({ error: error.message })
-  //   }
-  // }
+      const response = await User.updateUser(
+        id,
+        completeName,
+        genre,
+        baptismDate,
+        birthDate,
+        isMember,
+        isBaptized,
+        postalCode,
+        profileImage,
+      )
+
+      return res.status(200).json(response)
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message })
+    }
+  }
 }

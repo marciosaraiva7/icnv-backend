@@ -117,4 +117,20 @@ export class UserController {
       return res.status(400).json({ error: error.message })
     }
   }
+
+  static async getProfile(req: Request, res: Response) {
+    try {
+      const { idUser } = req.params
+
+      if (!idUser) {
+        throw new Error('Id do usuário obrigatório')
+      }
+
+      const response = await User.getProfile(parseInt(idUser))
+
+      return res.status(200).json(response)
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message })
+    }
+  }
 }

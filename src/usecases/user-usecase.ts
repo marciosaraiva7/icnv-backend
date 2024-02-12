@@ -223,4 +223,30 @@ export class User {
     }
     return userExists.profileImage
   }
+
+  static async getProfile(idUser: number) {
+    const user = await UserService.getUserById(idUser)
+    if (!user) {
+      throw new Error('Usuário não encontrado')
+    }
+    const address = await AddressService.getAddressByIdUser(idUser)
+    const contact = await AddressService.getContactByIdUser(idUser)
+
+    return {
+      email: user.email,
+      completeName: user.completeName,
+      username: user.username,
+      genre: user.genre === 0 ? 'Homem' : 'Mulher',
+      isBaptized: user.isBaptized,
+      baptismDate: user.baptismDate,
+      isMember: user.isMember,
+      birthDate: user.birthDate,
+      postalCode: address ? address.postalCode : null,
+      street: address ? address.street : null,
+      neighborhood: address ? address.neighborhood : null,
+      city: address ? address.city : null,
+      state: address ? address.state : null,
+      contact: contact ? contact.contact : null,
+    }
+  }
 }

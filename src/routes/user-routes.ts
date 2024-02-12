@@ -31,6 +31,7 @@ export default (router: Router) => {
     UserController.uploadProfileImage,
   )
   router.get('/profileImage/:idUser', UserController.getProfileImage)
+  router.get('/profile/:idUser', UserController.getProfile)
   router.post('/forgotPassword', UserController.forgotPassword)
   router.get('/healthcheck', (req, res) => res.send('OK'))
 }

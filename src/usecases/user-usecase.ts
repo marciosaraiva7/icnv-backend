@@ -67,72 +67,160 @@ export class User {
     )
   }
 
-  static async updateUser(
-    id: number,
-    completeName: string,
-    genre: string,
-    baptismDate: Date,
-    birthDate: Date,
-    isMember: boolean,
-    isBaptized: boolean,
-    postalCode: string,
-    profileImage: Buffer | null,
-  ): Promise<string> {
-    const userExists = await UserService.getUserById(id)
+  static async forgotPassword(email: string): Promise<string> {
+    const userExists = await UserService.getUserByEmail(email)
     if (!userExists) {
       throw new Error('Usuário não encontrado')
     }
 
-    const address = await AddressService.consultaCep(postalCode)
-    if (!address) {
-      throw new Error('Endereço não encontrado ou CEP inválido')
+    const newPassword = await UserService.generateRandomPassword(8)
+    const md5 = crypto.createHash('md5')
+    const hash = md5.update(newPassword).digest('hex')
+
+    await UserService.updateUserPassword({
+      idUser: userExists.idUser,
+      password: hash,
+    })
+
+    await UserService.sendResetPasswordEmail(email, newPassword)
+
+    return 'Nova senha enviada para o email cadastrado'
+  }
+
+  static async updateUser(
+    idUser: number,
+    email?: string,
+    password?: string,
+    completeName?: string,
+    genre?: string,
+    baptismDate?: Date,
+    birthDate?: Date,
+    isMember?: boolean,
+    isBaptized?: boolean,
+    postalCode?: string,
+    contact?: string,
+  ): Promise<string> {
+    const userExists = await UserService.getUserById(idUser)
+    if (!userExists) {
+      throw new Error('Usuário não encontrado')
     }
 
-    await AddressService.createAddress({
-      idUser: id,
-      postalCode: postalCode,
-      street: address.logradouro,
-      neighborhood: address.bairro,
-      city: address.localidade,
-      state: address.uf,
-    })
+    if (postalCode) {
+      const addressExists = await AddressService.getAddressByIdUser(idUser)
+
+      if (!addressExists) {
+        const address = await AddressService.consultaCep(postalCode)
+        if (!address) {
+          throw new Error('Endereço não encontrado ou CEP inválido')
+        }
+
+        await AddressService.createAddress({
+          idUser: idUser,
+          postalCode: postalCode,
+          street: address.logradouro,
+          neighborhood: address.bairro,
+          city: address.localidade,
+          state: address.uf,
+        })
+      } else {
+        if (addressExists.postalCode === postalCode) {
+          throw new Error('CEP já cadastrado')
+        }
+        const address = await AddressService.consultaCep(postalCode)
+        if (!address) {
+          throw new Error('Endereço não encontrado ou CEP inválido')
+        }
+
+        await AddressService.updateAddress({
+          idAddress: addressExists.idAddress,
+          idUser: idUser,
+          postalCode: postalCode,
+          street: address.logradouro,
+          neighborhood: address.bairro,
+          city: address.localidade,
+          state: address.uf,
+        })
+      }
+    }
+
+    if (contact) {
+      const contactExists = await AddressService.getContactByIdUser(idUser)
+      if (!contactExists) {
+        await AddressService.createContact({
+          idUser: idUser,
+          contact: contact,
+          type: 2,
+        })
+      } else {
+        if (contactExists.contact === contact) {
+          throw new Error('Contato já cadastrado')
+        }
+        await AddressService.updateContact({
+          idContact: contactExists.idContact,
+          idUser: idUser,
+          contact: contact,
+          type: 2,
+        })
+      }
+    }
+
+    let newPassword = null
+    if (password) {
+      const md5 = crypto.createHash('md5')
+      const hash = md5.update(password).digest('hex')
+      newPassword = hash
+    }
 
     const userName = (completeName: string): string => {
       const name = completeName.split(' ')
-      const userName = name[0] + ' ' + name[-1]
+      const userName = name[0] + ' ' + name[name.length - 1]
       return userName
     }
 
-    let genreInt: number
-
-    if (genre === 'Homem') {
-      genreInt = 0
-    } else {
-      genreInt = 1
-    }
-
     const user = {
-      idUser: id,
-      email: userExists.email,
-      password: userExists.password,
-      completeName,
-      username: userName(completeName),
-      idAccessLevel: 2,
-      genre: genreInt,
-      baptismDate,
-      birthDate,
-      isMember,
-      isBaptized,
-      profileImage,
+      idUser: idUser,
+      email: email ? email : userExists.email,
+      password: password ? newPassword : userExists.password,
+      completeName: completeName ? completeName : userExists.completeName,
+      username: completeName ? userName(completeName) : userExists.username,
+      idAccessLevel: isMember
+        ? isMember === true
+          ? 2
+          : 3
+        : userExists.idAccessLevel,
+      genre: genre ? (genre === 'Homem' ? 0 : 1) : userExists.genre,
+      isBaptized: isBaptized ? isBaptized : userExists.isBaptized,
+      baptismDate: baptismDate ? baptismDate : userExists.baptismDate,
+      birthDate: birthDate ? birthDate : userExists.birthDate,
+      isMember: isMember ? isMember : userExists.isMember,
+      profileImage: userExists.profileImage,
       status: userExists.status,
     }
 
-    if (isMember === false) {
-      user.idAccessLevel = 1
-    }
-
-    await UserService.updateUser(id, user)
+    await UserService.updateUser(user)
 
     return 'Usuário atualizado com sucesso'
+  }
+
+  static async uploadProfileImage(idUser: number, profileImage: Buffer) {
+    const userExists = await UserService.getUserById(idUser)
+    if (!userExists) {
+      throw new Error('Usuário não encontrado')
+    }
+
+    await UserService.uploadProfileImage(idUser, profileImage)
+
+    return 'Imagem de perfil atualizada com sucesso'
+  }
+
+  static async getProfileImage(idUser: number) {
+    const userExists = await UserService.getUserById(idUser)
+    if (!userExists) {
+      throw new Error('Usuário não encontrado')
+    }
+    if (!userExists.profileImage) {
+      throw new Error('Imagem de perfil não encontrada')
+    }
+    return userExists.profileImage
   }
 }

@@ -26,10 +26,24 @@ export class UserController {
     }
   }
 
+  static async forgotPassword(req: Request, res: Response) {
+    try {
+      const email = req.body.email
+
+      const response = await User.forgotPassword(email)
+
+      return res.status(200).json(response)
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message })
+    }
+  }
+
   static async updateUser(req: Request, res: Response) {
     try {
       const {
-        id,
+        idUser,
+        email,
+        password,
         completeName,
         genre,
         baptismDate,
@@ -37,16 +51,13 @@ export class UserController {
         isMember,
         isBaptized,
         postalCode,
+        contact,
       } = req.body
 
-      const profileImage = req.files
-        ? Array.isArray(req.files)
-          ? req.files[0].buffer
-          : req.files.buffer
-        : null
-
       const response = await User.updateUser(
-        id,
+        idUser,
+        email,
+        password,
         completeName,
         genre,
         baptismDate,
@@ -54,10 +65,54 @@ export class UserController {
         isMember,
         isBaptized,
         postalCode,
-        profileImage,
+        contact,
       )
 
       return res.status(200).json(response)
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message })
+    }
+  }
+
+  static async uploadProfileImage(req: Request, res: Response) {
+    try {
+      const { idUser } = req.params
+      const file = req.file
+
+      if (!idUser) {
+        throw new Error('Id do usuário obrigatório')
+      }
+
+      if (!file) {
+        throw new Error('Imagem não encontrada')
+      }
+
+      const imageBuffer = file.buffer
+
+      const response = await User.uploadProfileImage(
+        parseInt(idUser),
+        imageBuffer,
+      )
+
+      return res.status(200).json(response)
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message })
+    }
+  }
+
+  static async getProfileImage(req: Request, res: Response) {
+    try {
+      const { idUser } = req.params
+
+      if (!idUser) {
+        throw new Error('Id do usuário obrigatório')
+      }
+
+      const response = await User.getProfileImage(parseInt(idUser))
+
+      res.set('Content-Type', 'image/*')
+
+      return res.status(200).send(response)
     } catch (error: any) {
       return res.status(400).json({ error: error.message })
     }
